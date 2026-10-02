@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Forex Robot</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#060c18;color:white;min-height:100vh;overflow-x:hidden;}
+button{font-family:inherit;}
+input{font-family:inherit;}
+
+/* ── LOGIN ── */
+#login{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+.logo-area{text-align:center;margin-bottom:36px;}
+.robot-circle{display:inline-flex;background:#0c1a2a;border-radius:50%;padding:18px;margin-bottom:16px;box-shadow:0 0 40px #0066aa22;}
+.brand-name{color:#FFD700;font-size:34px;font-weight:900;letter-spacing:5px;}
+.brand-sub{color:white;font-size:15px;margin-top:8px;}
+.login-card{background:#0c1826;border:1px solid #1a3050;border-radius:16px;padding:26px 24px;width:100%;max-width:400px;}
+.lock-lbl{color:white;font-size:18px;font-weight:700;margin-bottom:18px;}
+.pw-wrap{position:relative;margin-bottom:10px;}
+#pw-inp{width:100%;padding:14px 48px 14px 16px;background:#101e2e;border:1.5px solid #1e3450;border-radius:10px;color:white;font-size:16px;outline:none;}
+#pw-inp.err{border-color:#ff3344;animation:shake .5s;}
+.eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:#889;cursor:pointer;font-size:18px;padding:4px;}
+.err-msg{color:#ff4455;font-size:12px;margin:4px 0 10px;display:none;}
+.login-btn{width:100%;padding:16px;background:linear-gradient(135deg,#FFD700,#FF9900);border:none;border-radius:10px;color:#1a0800;font-size:17px;font-weight:900;letter-spacing:3px;cursor:pointer;text-transform:uppercase;}
+.warn{color:#445566;text-align:center;margin-top:20px;font-size:12px;}
+
+/* ── HOME ── */
+#home{display:none;}
+.header{background:#0a1422;padding:12px 14px;border-bottom:1px solid #152030;display:flex;align-items:center;gap:12px;}
+.hdr-bot{background:#0f1e30;border-radius:50%;padding:6px;display:flex;flex-shrink:0;}
+.hdr-title{color:#FFD700;font-size:20px;font-weight:900;letter-spacing:3px;}
+.hdr-credit{color:#cc4422;font-size:9px;margin-top:2px;}
+.hdr-sub{color:#88a0b0;font-size:11px;margin-top:2px;}
+.live-badge{background:#081808;border:1.5px solid #00bb44;border-radius:20px;padding:5px 11px;display:flex;align-items:center;gap:6px;margin-left:auto;flex-shrink:0;}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#00ee55;box-shadow:0 0 7px #00ee55;animation:pulse 1.6s infinite;display:inline-block;}
+.live-txt{color:#00ee55;font-size:13px;font-weight:700;}
+.body{padding:14px;}
+
+/* ── TABS ── */
+.sym-row{display:flex;gap:7px;margin-bottom:14px;}
+.sym-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;background:#0c1826;border:1px solid #1a2d44;border-radius:10px;color:#88a0b8;cursor:pointer;font-size:14px;}
+.sym-btn.active{background:linear-gradient(135deg,#cc9900,#FF8800);border:none;color:#1a0800;}
+.sym-id{font-size:9px;opacity:.7;}
+.mini-badge{border-radius:5px;padding:2px 7px;font-size:9px;font-weight:700;color:white;margin-top:2px;}
+
+/* ── CARDS ── */
+.card{background:#0c1826;border:1px solid #152438;border-radius:14px;padding:18px;margin-bottom:12px;}
+.card-title{color:#FFD700;font-size:13px;font-weight:700;margin-bottom:14px;}
+.meta-lbl{color:#556677;font-size:11px;}
+.entry-price{color:white;font-size:28px;font-weight:800;margin-top:4px;}
+.entry-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
+.time-lbl{color:#556677;font-size:11px;}
+.macd-lbl-gold{color:#FFD700;font-size:11px;margin-top:3px;}
+
+/* ── SIGNAL BOX ── */
+.sig-box{border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.sig-buy{background:linear-gradient(135deg,#081f10,#102a18);border:1.5px solid #00aa44;}
+.sig-sell{background:linear-gradient(135deg,#1f0808,#2a1010);border:1.5px solid #aa0022;}
+.buy-pill{display:flex;align-items:center;background:#008833;border-radius:10px;padding:9px 20px;flex-shrink:0;}
+.sell-pill{display:flex;align-items:center;background:#aa0022;border-radius:10px;padding:9px 20px;flex-shrink:0;}
+.sig-word{color:white;font-size:24px;font-weight:900;letter-spacing:2px;}
+.sig-arr{color:white;font-size:22px;margin-left:6px;}
+.sig-strong-buy{color:#00ff66;font-size:13px;font-weight:700;}
+.sig-strong-sell{color:#ff3344;font-size:13px;font-weight:700;}
+.sig-desc{color:#88a898;font-size:11px;margin-top:2px;}
+.sig-desc-sell{color:#b88888;font-size:11px;margin-top:2px;}
+
+/* ── TP/SL ── */
+.tp-sl-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.tp-box{background:#081810;border:1px solid #003311;border-radius:10px;padding:12px 14px;}
+.sl-box{background:#180808;border:1px solid #330011;border-radius:10px;padding:12px 14px;}
+.tp-val{color:#00ee66;font-size:20px;font-weight:700;margin-top:4px;}
+.sl-val{color:#ff4455;font-size:20px;font-weight:700;margin-top:4px;}
+.rr-lbl{color:#445566;font-size:11px;margin-top:12px;text-align:center;}
+.rr-gold{color:#FFD700;font-weight:700;}
+
+/* ── MACD ── */
+.macd-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+.macd-cell{background:#080e18;border-radius:8px;padding:10px 8px;text-align:center;}
+.macd-cell-lbl{color:#556677;font-size:10px;margin-bottom:4px;}
+.macd-cell-val{font-size:13px;font-weight:700;}
+.hist-bars{display:flex;align-items:flex-end;gap:3px;height:44px;}
+.hbar{flex:1;border-radius:2px 2px 0 0;}
+
+/* ── ALL SIGS ── */
+.all-item{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #152030;cursor:pointer;}
+.all-sym{color:white;font-size:13px;font-weight:600;}
+.all-name{color:#667788;font-size:11px;}
+.sig-badge{border-radius:6px;padding:3px 10px;font-size:12px;font-weight:700;color:white;display:inline-block;}
+.all-entry{color:#99aabb;font-size:11px;margin-top:3px;}
+
+/* ── REFRESH ── */
+.refresh-btn{width:100%;padding:16px;background:linear-gradient(135deg,#0055bb,#003388);border:1px solid #0055bb;border-radius:12px;color:white;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px;cursor:pointer;}
+.refresh-btn:disabled{opacity:.65;cursor:not-allowed;}
+.spin{display:inline-block;animation:spin 1s linear infinite;}
+
+/* ── LOADING ── */
+.load-box{text-align:center;padding:60px 0;}
+.load-icon{font-size:36px;display:inline-block;animation:spin 1s linear infinite;}
+.load-txt{color:#88a0b8;margin-top:12px;font-size:14px;}
+
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ LOGIN ═══════════════════ -->
+<div id="login">
+  <div class="logo-area">
+    <div class="robot-circle">
+      <svg width="96" height="96" viewBox="0 0 100 110" fill="none">
+        <circle cx="50" cy="40" r="32" fill="#0f1e30"/>
+        <rect x="26" y="16" width="48" height="42" rx="11" fill="#d0dce8"/>
+        <rect x="31" y="24" width="14" height="13" rx="4" fill="#1560e0"/>
+        <rect x="55" y="24" width="14" height="13" rx="4" fill="#1560e0"/>
+        <circle cx="38" cy="30.5" r="4.5" fill="#60a8f8"/>
+        <circle cx="62" cy="30.5" r="4.5" fill="#60a8f8"/>
+        <circle cx="39.5" cy="29" r="1.8" fill="white"/>
+        <circle cx="63.5" cy="29" r="1.8" fill="white"/>
+        <line x1="50" y1="16" x2="50" y2="7" stroke="#b0c0d0" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="50" cy="5" r="3.5" fill="#b0c0d0"/>
+        <rect x="14" y="24" width="12" height="18" rx="4" fill="#b0c0d0"/>
+        <rect x="74" y="24" width="12" height="18" rx="4" fill="#b0c0d0"/>
+        <circle cx="20" cy="28" r="3" fill="#e04040"/>
+        <circle cx="80" cy="28" r="3" fill="#e04040"/>
+        <circle cx="20" cy="37" r="3" fill="#4070e0"/>
+        <circle cx="80" cy="37" r="3" fill="#4070e0"/>
+        <path d="M 36 48 Q 50 57 64 48" stroke="#8899aa" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <rect x="20" y="64" width="60" height="36" rx="9" fill="#d0dce8"/>
+        <rect x="26" y="69" width="48" height="24" rx="5" fill="#080e18"/>
+        <line x1="30" y1="75" x2="56" y2="75" stroke="#00cc55" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="30" y1="80" x2="46" y2="80" stroke="#ff3333" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="30" y1="85" x2="52" y2="85" stroke="#3377ff" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="24" cy="72" r="2.8" fill="#e04040"/>
+        <circle cx="24" cy="80" r="2.8" fill="#4070e0"/>
+        <circle cx="76" cy="72" r="2.8" fill="#e04040"/>
+        <circle cx="76" cy="80" r="2.8" fill="#4070e0"/>
+      </svg>
+    </div>
+    <div class="brand-name">FOREX ROBOT</div>
+    <div class="brand-sub">Signal Bot</div>
+  </div>
+
+  <div class="login-card">
+    <div class="lock-lbl">🔐 Secure Login</div>
+    <div class="pw-wrap">
+      <input type="password" id="pw-inp" class="pw-inp" placeholder="Enter Password" autocomplete="current-password">
+      <button class="eye" id="eye-btn" onclick="toggleEye()">👁️</button>
+    </div>
+    <div class="err-msg" id="err-msg">❌ Wrong password — access denied.</div>
+    <button class="login-btn" onclick="doLogin()">LOGIN</button>
+  </div>
+  <div class="warn">⚠️ Unauthorized access is prohibited</div>
+</div>
+
+<!-- ═══════════════════ HOME ═══════════════════ -->
+<div id="home">
+  <div class="header">
+    <div class="hdr-bot">
+      <svg width="44" height="44" viewBox="0 0 100 110" fill="none">
+        <circle cx="50" cy="40" r="32" fill="#0f1e30"/>
+        <rect x="26" y="16" width="48" height="42" rx="11" fill="#d0dce8"/>
+        <rect x="31" y="24" width="14" height="13" rx="4" fill="#1560e0"/>
+        <rect x="55" y="24" width="14" height="13" rx="4" fill="#1560e0"/>
+        <circle cx="38" cy="30.5" r="4.5" fill="#60a8f8"/>
+        <circle cx="62" cy="30.5" r="4.5" fill="#60a8f8"/>
+        <circle cx="39.5" cy="29" r="1.8" fill="white"/>
+        <circle cx="63.5" cy="29" r="1.8" fill="white"/>
+        <line x1="50" y1="16" x2="50" y2="7" stroke="#b0c0d0" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="50" cy="5" r="3.5" fill="#b0c0d0"/>
+        <rect x="14" y="24" width="12" height="18" rx="4" fill="#b0c0d0"/>
+        <rect x="74" y="24" width="12" height="18" rx="4" fill="#b0c0d0"/>
+        <circle cx="20" cy="28" r="3" fill="#e04040"/><circle cx="80" cy="28" r="3" fill="#e04040"/>
+        <circle cx="20" cy="37" r="3" fill="#4070e0"/><circle cx="80" cy="37" r="3" fill="#4070e0"/>
+        <path d="M 36 48 Q 50 57 64 48" stroke="#8899aa" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <rect x="20" y="64" width="60" height="36" rx="9" fill="#d0dce8"/>
+        <rect x="26" y="69" width="48" height="24" rx="5" fill="#080e18"/>
+        <line x1="30" y1="75" x2="56" y2="75" stroke="#00cc55" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="30" y1="80" x2="46" y2="80" stroke="#ff3333" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="30" y1="85" x2="52" y2="85" stroke="#3377ff" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="24" cy="72" r="2.8" fill="#e04040"/><circle cx="24" cy="80" r="2.8" fill="#4070e0"/>
+        <circle cx="76" cy="72" r="2.8" fill="#e04040"/><circle cx="76" cy="80" r="2.8" fill="#4070e0"/>
+      </svg>
+    </div>
+    <div>
+      <div class="hdr-title">FOREX ROBOT</div>
+      <div class="hdr-credit">Build Forex Robot Chart Analyzer By Amin Agha Hamidi in 24/09/2026</div>
+      <div class="hdr-sub">Signal Bot</div>
+    </div>
+    <div class="live-badge">
+      <span class="live-dot"></span>
+      <span class="live-txt">LIVE</span>
+    </div>
+  </div>
+
+  <div class="body">
+    <!-- Symbol tabs -->
+    <div class="sym-row">
+      <button class="sym-btn active" id="tab-XAUUSD.m" onclick="selectSym('XAUUSD.m')">
+        🥇 GOLD<span class="sym-id">XAUUSD.m</span>
+        <span class="mini-badge" id="mb-XAUUSD.m" style="background:#006622">— —</span>
+      </button>
+      <button class="sym-btn" id="tab-JP225.std" onclick="selectSym('JP225.std')">
+        🇯🇵 JP225<span class="sym-id">JP225.std</span>
+        <span class="mini-badge" id="mb-JP225.std" style="background:#006622">— —</span>
+      </button>
+      <button class="sym-btn" id="tab-BTCUSD.m" onclick="selectSym('BTCUSD.m')">
+        ₿ BTC<span class="sym-id">BTCUSD.m</span>
+        <span class="mini-badge" id="mb-BTCUSD.m" style="background:#006622">— —</span>
+      </button>
+    </div>
+
+    <!-- Dynamic area -->
+    <div id="sig-area">
+      <div class="load-box">
+        <div class="load-icon">⚙️</div>
+        <div class="load-txt">Analyzing MACD Signal…</div>
+      </div>
+    </div>
+
+    <!-- Refresh -->
+    <button class="refresh-btn" id="refresh-btn" onclick="doRefresh()">
+      <span id="ref-icon">🔄</span>
+      <span id="ref-txt">Refresh Signal</span>
+    </button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  MACD ENGINE
+// ═══════════════════════════════════════════════
+function ema(data,period){
+  var k=2/(period+1),val=data[0],out=[val];
+  for(var i=1;i<data.length;i++){val=data[i]*k+val*(1-k);out.push(val);}
+  return out;
+}
+function calcMACD(closes){
+  if(closes.length<40)return null;
+  var e12=ema(closes,12),e26=ema(closes,26);
+  var ml=closes.map(function(_,i){return e12[i]-e26[i];});
+  var ms=ml.slice(25),sl=ema(ms,9);
+  var hist=sl.map(function(s,i){return ms[i]-s;});
+  return{ml:ml,sl:sl,hist:hist};
+}
+
+var SYM={
+  'XAUUSD.m':{label:'🥇 GOLD',   base:2663,  vol:4.5,dec:2},
+  'JP225.std':{label:'🇯🇵 JP225',base:37820, vol:110, dec:0},
+  'BTCUSD.m': {label:'₿ BITCOIN',base:84640, vol:190, dec:2}
+};
+
+function buildSignal(sym){
+  var c=SYM[sym];
+  var candles=[],p=c.base+(Math.random()-.5)*c.vol*8;
+  for(var i=0;i<65;i++){
+    var drift=Math.sin(i/7)*c.vol*.25,noise=(Math.random()-.5)*c.vol;
+    p+=drift*.15+noise;
+    var r=Math.abs(noise)*1.6+c.vol*.3;
+    var high=p+r*(.35+Math.random()*.55),low=p-r*(.35+Math.random()*.55);
+    var close=low+Math.random()*(high-low);
+    candles.push({high:high,low:low,close:close});
+    p=close;
+  }
+  var closes=candles.map(function(x){return x.close;});
+  var m=calcMACD(closes);
+  if(!m)return null;
+  var ml=m.ml,sl=m.sl,hist=m.hist,n=sl.length;
+
+  // Crossover detection
+  var sigType=null,isCross=false;
+  for(var j=n-1;j>=Math.max(1,n-5);j--){
+    var mc=ml[j+25],ms2=sl[j],mp=ml[j+24],ps=sl[j-1];
+    if(mp<ps&&mc>=ms2){sigType='BUY';isCross=true;break;}
+    if(mp>ps&&mc<=ms2){sigType='SELL';isCross=true;break;}
+  }
+  if(!sigType) sigType=ml[ml.length-1]>=sl[n-1]?'BUY':'SELL';
+
+  var entry=parseFloat(closes[closes.length-1].toFixed(c.dec));
+  var rec=candles.slice(-14);
+  var swL=Math.min.apply(null,rec.map(function(x){return x.low;}));
+  var swH=Math.max.apply(null,rec.map(function(x){return x.high;}));
+  var sl2,tp;
+  if(sigType==='BUY'){
+    sl2=parseFloat(swL.toFixed(c.dec));
+    tp=parseFloat((entry+(entry-sl2)*3).toFixed(c.dec));
+  }else{
+    sl2=parseFloat(swH.toFixed(c.dec));
+    tp=parseFloat((entry-(sl2-entry)*3).toFixed(c.dec));
+  }
+  var now=new Date();
+  var hh=String(now.getHours()).padStart(2,'0');
+  var mm=String(now.getMinutes()).padStart(2,'0');
+  var ss=String(now.getSeconds()).padStart(2,'0');
+  return{
+    sigType:sigType,entry:entry,tp:tp,sl:sl2,isCross:isCross,
+    macdVal:parseFloat(ml[ml.length-1].toFixed(4)),
+    sigVal:parseFloat(sl[n-1].toFixed(4)),
+    histVal:parseFloat(hist[n-1].toFixed(4)),
+    histBars:hist.slice(-20),
+    time:hh+':'+mm+':'+ss
+  };
+}
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+var signals={},curSym='XAUUSD.m',busy=false,updated='',refreshTimer=null;
+
+// ═══════════════════════════════════════════════
+//  LOGIN
+// ═══════════════════════════════════════════════
+var PASS='Hamidi2026@#AK',showPw=false;
+
+function toggleEye(){
+  showPw=!showPw;
+  var inp=document.getElementById('pw-inp');
+  inp.type=showPw?'text':'password';
+  document.getElementById('eye-btn').textContent=showPw?'🙈':'👁️';
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&document.getElementById('login').style.display!=='none'){doLogin();}
+});
+
+function doLogin(){
+  var pw=document.getElementById('pw-inp').value;
+  var inp=document.getElementById('pw-inp');
+  var err=document.getElementById('err-msg');
+  if(pw===PASS){
+    document.getElementById('login').style.display='none';
+    document.getElementById('home').style.display='block';
+    startHome();
+  }else{
+    err.style.display='block';
+    inp.classList.add('err');
+    setTimeout(function(){inp.classList.remove('err');},600);
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  HOME
+// ═══════════════════════════════════════════════
+function startHome(){
+  doRefresh();
+  refreshTimer=setInterval(function(){doRefresh();},60000);
+}
+
+function doRefresh(){
+  if(busy)return;
+  busy=true;
+  setBusy(true);
+  setTimeout(function(){
+    var syms=Object.keys(SYM);
+    for(var i=0;i<syms.length;i++) signals[syms[i]]=buildSignal(syms[i]);
+    var now=new Date();
+    updated=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+    updateMiniBadges();
+    renderSignal();
+    setBusy(false);
+    busy=false;
+  },1300);
+}
+
+function setBusy(on){
+  var btn=document.getElementById('refresh-btn');
+  var icon=document.getElementById('ref-icon');
+  var txt=document.getElementById('ref-txt');
+  btn.disabled=on;
+  icon.className=on?'spin':'';
+  txt.textContent=on?'Analyzing…':'Refresh Signal';
+  if(on){
+    document.getElementById('sig-area').innerHTML=
+      '<div class="load-box"><div class="load-icon">⚙️</div><div class="load-txt">Analyzing MACD Signal…</div></div>';
+  }
+}
+
+function selectSym(s){
+  curSym=s;
+  document.querySelectorAll('.sym-btn').forEach(function(b){b.classList.remove('active');});
+  var tb=document.getElementById('tab-'+s);
+  if(tb)tb.classList.add('active');
+  renderSignal();
+}
+
+function updateMiniBadges(){
+  Object.keys(SYM).forEach(function(s){
+    var sig=signals[s],mb=document.getElementById('mb-'+s);
+    if(!mb||!sig)return;
+    mb.style.background=sig.sigType==='BUY'?'#006622':'#660011';
+    mb.textContent=(sig.sigType==='BUY'?'▲':'▼')+' '+sig.sigType;
+  });
+}
+
+function fmt(n){return n.toLocaleString();}
+
+function renderSignal(){
+  var sig=signals[curSym];
+  if(!sig){document.getElementById('sig-area').innerHTML='';return;}
+  var isBuy=sig.sigType==='BUY';
+
+  // Histogram bars HTML
+  var maxH=Math.max.apply(null,sig.histBars.map(Math.abs))||1;
+  var bars='';
+  for(var i=0;i<sig.histBars.length;i++){
+    var h=sig.histBars[i];
+    var pct=Math.min(Math.abs(h)/maxH,1);
+    var ht=Math.round(pct*36+4);
+    var col=h>=0?'#00aa44':'#aa0033';
+    var op=(0.4+(i/sig.histBars.length)*0.6).toFixed(2);
+    bars+='<div class="hbar" style="height:'+ht+'px;background:'+col+';opacity:'+op+'"></div>';
+  }
+
+  // All symbols rows
+  var allRows='';
+  Object.keys(SYM).forEach(function(s){
+    var sg=signals[s],cfg=SYM[s];
+    var badgeCol=sg&&sg.sigType==='BUY'?'#006622':'#660011';
+    var badgeTxt=sg?(sg.sigType==='BUY'?'▲ BUY':'▼ SELL'):'—';
+    var entryTxt=sg?fmt(sg.entry):'';
+    allRows+='<div class="all-item" onclick="selectSym(\''+s+'\')" style="opacity:'+(curSym===s?'1':'.78')+'">'
+      +'<div><div class="all-sym">'+s+'</div><div class="all-name">'+cfg.label+'</div></div>'
+      +'<div style="text-align:right">'
+      +(sg?'<span class="sig-badge" style="background:'+badgeCol+'">'+badgeTxt+'</span><div class="all-entry">'+entryTxt+'</div>':'<span style="color:#445">—</span>')
+      +'</div></div>';
+  });
+
+  var crossTxt=sig.isCross?(isBuy?'Bullish MACD Crossover':'Bearish MACD Crossover'):(isBuy?'MACD Bullish Trend':'MACD Bearish Trend');
+  var crossBadge=sig.isCross?'🔔 Crossover!':'MACD 12·26·9';
+
+  document.getElementById('sig-area').innerHTML=
+    // ── Main card ──
+    '<div class="card">'
+      +'<div class="entry-row">'
+        +'<div><div class="meta-lbl">'+curSym+' — Entry Price</div><div class="entry-price">'+fmt(sig.entry)+'</div></div>'
+        +'<div style="text-align:right"><div class="time-lbl">⏱ '+sig.time+'</div><div class="macd-lbl-gold">'+crossBadge+'</div></div>'
+      +'</div>'
+      // Signal box
+      +(isBuy
+        ?'<div class="sig-box sig-buy"><div class="buy-pill"><span class="sig-word">BUY</span><span class="sig-arr">▲</span></div>'
+          +'<div><div class="sig-strong-buy">✅ Strong Signal</div><div class="sig-desc">'+crossTxt+'</div></div></div>'
+        :'<div class="sig-box sig-sell"><div class="sell-pill"><span class="sig-word">SELL</span><span class="sig-arr">▼</span></div>'
+          +'<div><div class="sig-strong-sell">✅ Strong Signal</div><div class="sig-desc-sell">'+crossTxt+'</div></div></div>'
+      )
+      // TP / SL
+      +'<div class="tp-sl-row">'
+        +'<div class="tp-box"><div class="meta-lbl">🎯 Take Profit (1:3)</div><div class="tp-val">'+fmt(sig.tp)+'</div></div>'
+        +'<div class="sl-box"><div class="meta-lbl">🛡️ Stop Loss</div><div class="sl-val">'+fmt(sig.sl)+'</div></div>'
+      +'</div>'
+      +'<div class="rr-lbl">Risk : Reward = <span class="rr-gold">1 : 3</span> &nbsp;|&nbsp; Updated: '+updated+'</div>'
+    +'</div>'
+    // ── MACD card ──
+    +'<div class="card">'
+      +'<div class="card-title">📊 MACD Indicator (12 · 26 · 9)</div>'
+      +'<div class="macd-grid">'
+        +'<div class="macd-cell"><div class="macd-cell-lbl">MACD</div><div class="macd-cell-val" style="color:#5599ff">'+sig.macdVal+'</div></div>'
+        +'<div class="macd-cell"><div class="macd-cell-lbl">Signal</div><div class="macd-cell-val" style="color:#FF9500">'+sig.sigVal+'</div></div>'
+        +'<div class="macd-cell"><div class="macd-cell-lbl">Histogram</div><div class="macd-cell-val" style="color:'+(sig.histVal>=0?'#00ee66':'#ff4455')+'">'+sig.histVal+'</div></div>'
+      +'</div>'
+      +'<div class="hist-bars">'+bars+'</div>'
+    +'</div>'
+    // ── All signals ──
+    +'<div class="card">'
+      +'<div class="card-title">📡 All Signals</div>'
+      +allRows
+    +'</div>';
+}
+</script>
+</body>
+</html>
